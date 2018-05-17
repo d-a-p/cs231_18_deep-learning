@@ -1,0 +1,3 @@
+Requirement already satisfied: protobuf in /home/dap/PycharmProjects/ml1/venv/lib/python3.5/site-packages (3.1.0)
+Requirement already satisfied: six>=1.9 in /home/dap/PycharmProjects/ml1/venv/lib/python3.5/site-packages (from protobuf) (1.11.0)
+Requirement already satisfied: setuptools in /home/dap/PycharmProjects/ml1/venv/lib/python3.5/site-packages/setuptools-28.8.0-py3.5.egg (from protobuf) (28.8.0)
