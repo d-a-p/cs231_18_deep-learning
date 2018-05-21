@@ -419,21 +419,19 @@ def dropout_forward(x, dropout_param):
 	out = None
 
 	if mode == 'train':
+
+		mask = (np.random.rand(*x.shape) < p) / p
+		out = x * mask
 		#######################################################################
-		# TODO: Implement training phase forward pass for inverted dropout.   #
+		# Implement training phase forward pass for inverted dropout.         #
 		# Store the dropout mask in the mask variable.                        #
 		#######################################################################
-		pass
-		#######################################################################
-		#                           END OF YOUR CODE                          #
-		#######################################################################
+
 	elif mode == 'test':
+		out = x
+		mask = None
 		#######################################################################
-		# TODO: Implement the test phase forward pass for inverted dropout.   #
-		#######################################################################
-		pass
-		#######################################################################
-		#                            END OF YOUR CODE                         #
+		# Implement the test phase forward pass for inverted dropout.         #
 		#######################################################################
 
 	cache = (dropout_param, mask)
@@ -455,13 +453,11 @@ def dropout_backward(dout, cache):
 
 	dx = None
 	if mode == 'train':
+		dx = dout * mask
 		#######################################################################
-		# TODO: Implement training phase backward pass for inverted dropout   #
+		# Implement training phase backward pass for inverted dropout         #
 		#######################################################################
-		pass
-		#######################################################################
-		#                          END OF YOUR CODE                           #
-		#######################################################################
+
 	elif mode == 'test':
 		dx = dout
 	return dx

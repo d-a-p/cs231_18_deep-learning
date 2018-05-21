@@ -328,6 +328,9 @@ class FullyConnectedNet(object):
 				else:
 					xi, cache[i] = affine_relu_forward(xi, wi, bi)
 
+				if self.use_dropout:
+					xi, cache['DROP'+str(i)] = dropout_forward(xi, self.dropout_param)
+
 		scores = xi
 
 		############################################################################
@@ -366,6 +369,8 @@ class FullyConnectedNet(object):
 				grads['W' + ith_str] = dwi + reg * wi
 				grads['b' + ith_str] = dbi
 			else:
+				if self.use_dropout:
+					dx = dropout_backward(dx, cache['DROP'+str(H-i)])
 				if self.normalization == 'batchnorm' or self.normalization == 'layernorm':
 					dx, dwi, dbi, dgamma, dbeta = ln_bn_backward(dx, cache[H-i], self.normalization)
 					grads['gamma' + ith_str] = dgamma
