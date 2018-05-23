@@ -334,7 +334,7 @@ class FullyConnectedNet(object):
 		scores = xi
 
 		############################################################################
-		# TODO: Implement the forward pass for the fully-connected net, computing  #
+		# Implement the forward pass for the fully-connected net, computing        #
 		# the class scores for X and storing them in the scores variable.          #
 		#                                                                          #
 		# When using dropout, you'll need to pass self.dropout_param to each       #
@@ -387,7 +387,7 @@ class FullyConnectedNet(object):
 
 
 		############################################################################
-		# TODO: Implement the backward pass for the fully-connected net. Store the #
+		# Implement the backward pass for the fully-connected net. Store the       #
 		# loss in the loss variable and gradients in the grads dictionary. Compute #
 		# data loss using softmax, and make sure that grads[k] holds the gradients #
 		# for self.params[k]. Don't forget to add L2 regularization!               #
@@ -398,10 +398,6 @@ class FullyConnectedNet(object):
 		# NOTE: To ensure that your implementation matches ours and you pass the   #
 		# automated tests, make sure that your L2 regularization includes a factor #
 		# of 0.5 to simplify the expression for the gradient.                      #
-		############################################################################
-		pass
-		############################################################################
-		#                             END OF YOUR CODE                             #
 		############################################################################
 
 		return loss, grads
