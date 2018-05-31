@@ -41,6 +41,7 @@ class CaptioningRNN(object):
 		self.word_to_idx = word_to_idx
 		self.idx_to_word = {i: w for w, i in word_to_idx.items()}
 		self.params = {}
+		self.h = hidden_dim
 
 		vocab_size = len(word_to_idx)
 
@@ -117,10 +118,15 @@ class CaptioningRNN(object):
 
 		loss, grads = 0.0, {}
 
-
+		rnn_f, rnn_cache = None, None
 		h0 = features.dot(W_proj) + b_proj
 		embed_f, emb_cache = word_embedding_forward(captions_in, W_embed)
-		rnn_f, rnn_cache = rnn_forward(embed_f, h0, Wx, Wh,b)
+
+		if self.cell_type == 'lstm':
+			rnn_f, rnn_cache = lstm_forward(embed_f, h0, Wx, Wh, b)
+		else:
+			rnn_f, rnn_cache = rnn_forward(embed_f, h0, Wx, Wh, b)
+
 		aff_f, aff_cache = temporal_affine_forward(rnn_f, W_vocab, b_vocab)
 		loss, dout = temporal_softmax_loss(aff_f, captions_out, mask)
 
@@ -148,13 +154,18 @@ class CaptioningRNN(object):
 		# Note also that you are allowed to make use of functions from layers.py   #
 		# in your implementation, if needed.                                       #
 		############################################################################
+		drnn, dh0, grads['Wx'], grads['Wh'], grads['b'] = None, None, None, None, None
 
 		daff, grads['W_vocab'], grads['b_vocab'] = temporal_affine_backward(dout, aff_cache)
-		drnn, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(daff, rnn_cache)
+
+		if self.cell_type == 'lstm':
+			drnn, dh0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(daff, rnn_cache)
+		else:
+			drnn, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(daff, rnn_cache)
+
 		grads['W_embed'] = word_embedding_backward(drnn, emb_cache)
 		grads['b_proj'] = np.sum(dh0, axis=0)
 		grads['W_proj'] = features.T.dot(dh0)
-
 
 		return loss, grads
 
@@ -194,6 +205,7 @@ class CaptioningRNN(object):
 
 		captions[:,0] = self._start
 		h_prev = features.dot(W_proj) + b_proj
+		prev_c = np.zeros((N, self.h))
 
 		for t in range(max_length):
 			prev_word = captions[:, t].reshape((N,1))
@@ -201,7 +213,12 @@ class CaptioningRNN(object):
 				break
 			embed_f, emb_cache = word_embedding_forward(prev_word, W_embed)
 			embed_f = embed_f.reshape((embed_f.shape[0], -1))
-			next_h, _ = rnn_step_forward(embed_f, h_prev, Wx, Wh, b)
+
+			if self.cell_type == 'lstm':
+				next_h, next_c, _ = lstm_step_forward(embed_f, h_prev, prev_c, Wx, Wh, b)
+				prev_c = next_c
+			else:
+				next_h, _ = rnn_step_forward(embed_f, h_prev, Wx, Wh, b)
 			scores, _ = affine_forward(next_h, W_vocab, b_vocab)
 			captions[:,t+1] = np.argmax(scores, axis=1)
 			h_prev = next_h
